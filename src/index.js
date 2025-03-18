@@ -2,6 +2,7 @@ import Card from './Card.js';
 import Game from './Game.js';
 import TaskQueue from './TaskQueue.js';
 import SpeedRate from './SpeedRate.js';
+import CardView from "./CardView.js";
 
 // Отвечает является ли карта уткой.
 function isDuck(card) {
@@ -56,8 +57,24 @@ class Dog extends Creature{
     constructor(name='Пес-бандит', maxPower = 3, image) {
         super(name, maxPower, image);
     }
+
 }
 
+class Trasher extends Dog {
+    constructor(name="Громила", maxPower = 5, image="ААА.jpg") {
+        super(name, maxPower, image);
+    }
+
+    modifyTakenDamage(value, fromCard, gameContext, continuation) {
+        this.view.signalAbility(() => {
+            continuation(Math.max(0, value - 1));
+        });
+    }
+
+    getDescriptions() {
+        return ["Оттерверит тебя"];
+    }
+}
 
 // Колода Шерифа, нижнего игрока.
 const seriffStartDeck = [
@@ -68,7 +85,7 @@ const seriffStartDeck = [
 
 // Колода Бандита, верхнего игрока.
 const banditStartDeck = [
-    new Dog()
+    new Trasher()
 ];
 
 
