@@ -2,7 +2,6 @@ import Card from './Card.js';
 import Game from './Game.js';
 import TaskQueue from './TaskQueue.js';
 import SpeedRate from './SpeedRate.js';
-import CardView from "./CardView.js";
 
 // Отвечает является ли карта уткой.
 function isDuck(card) {
@@ -40,7 +39,7 @@ class Creature extends Card {
 }
 
 class Duck extends Creature {
-    constructor(name="Мирная утка", maxPower=2, image=undefined) {
+    constructor(name = "Мирная утка", maxPower = 2, image = undefined) {
         super(name, maxPower, image);
     }
 
@@ -53,15 +52,14 @@ class Duck extends Creature {
     }
 }
 
-class Dog extends Creature{
-    constructor(name='Пес-бандит', maxPower = 3, image) {
+class Dog extends Creature {
+    constructor(name = 'Пес-бандит', maxPower = 3, image) {
         super(name, maxPower, image);
     }
-
 }
 
 class Trasher extends Dog {
-    constructor(name="Громила", maxPower = 5, image="ААА.jpg") {
+    constructor(name = "Громила", maxPower = 5, image = "ААА.jpg") {
         super(name, maxPower, image);
     }
 
@@ -70,22 +68,45 @@ class Trasher extends Dog {
             continuation(Math.max(0, value - 1));
         });
     }
+}
 
-    getDescriptions() {
-        return ["Оттерверит тебя"];
+class Gatling extends Creature {
+    constructor(name = "Гатлинг", maxPower = 6, image) {
+        super(name, maxPower, image);
+    }
+
+    attack(gameContext, continuation) {
+        let oppositeCards = gameContext.oppositePlayer.table;
+        const taskQueue = new TaskQueue();
+
+        for (let position = 0; position < oppositeCards.length; position++) {
+            let oppositeCard = oppositeCards[position];
+            taskQueue.push(
+                onDone => {
+                    if (oppositeCards[position])
+                        this.dealDamageToCreature(2, oppositeCard, gameContext, onDone);
+                    else {
+                        onDone();
+                    }
+                });
+        }
+
+        taskQueue.continueWith(continuation);
     }
 }
+
 
 // Колода Шерифа, нижнего игрока.
 const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
+    new Gatling(),
 ];
-
-// Колода Бандита, верхнего игрока.
 const banditStartDeck = [
-    new Trasher()
+    new Trasher(),
+    new Dog(),
+    new Dog(),
 ];
 
 
