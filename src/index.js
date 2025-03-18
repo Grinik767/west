@@ -91,6 +91,7 @@ class Gatling extends Creature {
                     }
                 });
         }
+        taskQueue.push(continuation);
     }
 }
 
@@ -143,6 +144,30 @@ y
     }
 }
 
+class Brewer extends Duck {
+    constructor(name = "Пивовар", maxPower = 2, image = "berw.png") {
+        super(name, maxPower, image);
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        const { currentPlayer, oppositePlayer } = gameContext;
+        const allCardsOnTable = currentPlayer.table.concat(oppositePlayer.table);
+        allCardsOnTable.forEach(card => {
+            if (isDuck(card)) {
+                card.maxPower += 1;
+
+                card.currentPower += 2;
+
+                card.view.signalHeal(() => {
+                    card.updateView();
+                });
+            }
+        });
+
+        continuation();
+    }
+}
+
 class Rogue extends Creature {
     constructor(name = "Изгой", maxPower = 2, image) {
         super(name, maxPower, image);
@@ -179,8 +204,8 @@ class Rogue extends Creature {
 }
 
 const seriffStartDeck = [
-    new Duck(),
     new Rogue(),
+    new Brewer(),
     new Duck(),
     new Duck()
 
