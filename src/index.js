@@ -40,7 +40,7 @@ class Creature extends Card {
 }
 
 class Duck extends Creature {
-    constructor(name="Мирная утка", maxPower=2, image=undefined) {
+    constructor(name="Мирная утка", maxPower=2, image="golub.jpg") {
         super(name, maxPower, image);
     }
 
@@ -72,20 +72,67 @@ class Trasher extends Dog {
     }
 
     getDescriptions() {
-        return ["Оттерверит тебя"];
+        return ["Оттерверит тебя"].concat(super.getDescriptions());
     }
 }
 
-// Колода Шерифа, нижнего игрока.
+class Lad extends Dog {
+    constructor(name = "Браток", maxPower = 2, image = "skeletons.gif") {
+        super(name, maxPower, image);
+    }
+
+    static getInGameCount() {
+        return this.inGameCount || 0;
+    }
+
+    static setInGameCount(value) {
+        this.inGameCount = value;
+    }
+
+    static getBonus() {
+        const count = this.getInGameCount();
+        return count * (count + 1) / 2;
+    }
+y
+    doAfterComingIntoPlay(gameContext, continuation) {
+        Lad.setInGameCount(Lad.getInGameCount() + 1);
+        super.doAfterComingIntoPlay(gameContext, continuation);
+    }
+
+    doBeforeRemoving(gameContext, continuation) {
+        Lad.setInGameCount(Lad.getInGameCount() - 1);
+        super.doBeforeRemoving(gameContext, continuation);
+    }
+
+    modifyDealedDamageToCreature(value, toCard, gameContext, continuation) {
+        const bonus = Lad.getBonus();
+        continuation(value + bonus);
+    }
+
+    modifyTakenDamage(value, fromCard, gameContext, continuation) {
+        const bonus = Lad.getBonus();
+        continuation(Math.max(0, value - bonus));
+    }
+
+    getDescriptions() {
+        const descriptions = [];
+        if (Lad.prototype.hasOwnProperty('modifyDealedDamageToCreature') ||
+            Lad.prototype.hasOwnProperty('modifyTakenDamage')) {
+            descriptions.push("Чем их больше, тем они сильнее.");
+        }
+
+        return descriptions.concat(super.getDescriptions());
+    }
+}
+
 const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
 ];
-
-// Колода Бандита, верхнего игрока.
 const banditStartDeck = [
-    new Trasher()
+    new Lad(),
+    new Lad(),
 ];
 
 
