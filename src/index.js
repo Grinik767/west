@@ -143,18 +143,52 @@ y
     }
 }
 
+class Rogue extends Creature {
+    constructor(name = "Изгой", maxPower = 2, image) {
+        super(name, maxPower, image);
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        const {currentPlayer, oppositePlayer, position, updateView} = gameContext;
+        const oppositeCard = oppositePlayer.table[position];
+
+        if (oppositeCard) {
+            const prototype = Object.getPrototypeOf(oppositeCard);
+
+            const abilitiesToSteal = ["modifyDealedDamageToCreature", "modifyDealedDamageToPlayer", "modifyTakenDamage"];
+
+            const stolenAbilities = {};
+
+            oppositePlayer.table.forEach(card => {
+                if (card && Object.getPrototypeOf(card) === prototype) {
+                    abilitiesToSteal.forEach(ability => {
+                        if (card.hasOwnProperty(ability)) {
+                            stolenAbilities[ability] = card[ability];
+                            delete card[ability];
+                        }
+                    });
+                }
+            });
+
+            Object.assign(this, stolenAbilities);
+        }
+
+        updateView();
+        continuation();
+    }
+}
+
 const seriffStartDeck = [
     new Duck(),
+    new Rogue(),
     new Duck(),
-    new Duck(),
-    new Gatling(),
-];
+    new Duck()
 
-// Колода Бандита, верхнего игрока.
+];
 const banditStartDeck = [
     new Trasher(),
-    new Dog(),
-    new Dog(),
+    new Trasher(),
+    new Trasher()
 ];
 
 
