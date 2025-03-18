@@ -91,7 +91,7 @@ class Gatling extends Creature {
                     }
                 });
         }
-}
+    }
 }
 
 class Lad extends Dog {
